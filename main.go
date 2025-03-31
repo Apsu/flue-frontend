@@ -39,17 +39,11 @@ func main() {
 }
 
 func (c *CLI) Run(ctx *context.Context, stop *context.CancelFunc) error {
-	// Create a new server instance
 	log.Infof("Starting Flue Frontend on %s:%d, backend: %s", c.Host, c.Port, c.Backend)
 	srv := server.New(c.Host, c.Port, c.Backend)
-	log.Infof("Server initialized, setting up to run...")
-	err := srv.Run(*ctx, *stop)
-	if err != nil {
-		// Handle server run error
-		// This will typically not happen unless there is a fatal error in starting the server
+	if err := srv.Run(*ctx, *stop); err != nil {
 		log.Errorf("Failed to run server: %v", err)
 		return err
 	}
-	log.Infof("Server Run() returned successfully")
 	return nil
 }

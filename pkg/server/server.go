@@ -127,6 +127,7 @@ func (s *Server) generate(c echo.Context) error {
 		"steps":    numSteps,
 		"guidance": guidanceScale,
 	}
+	// Handle optional seed parameter.
 	if seedStr != "" {
 		seed, err := strconv.Atoi(seedStr)
 		if err != nil {
@@ -150,6 +151,7 @@ func (s *Server) generate(c echo.Context) error {
 	}
 	defer resp.Body.Close()
 
+	// Read the response body from the Flue server.
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, "Failed to read response from Flue server")
@@ -174,6 +176,7 @@ func (s *Server) generate(c echo.Context) error {
 	return c.Render(http.StatusOK, "result.html", data)
 }
 
+// roundFloat rounds a float64 to a specified number of decimal places.
 func roundFloat(val float64, precision int) float64 {
 	ratio := math.Pow(10, float64(precision))
 	return math.Round(val*ratio) / ratio
