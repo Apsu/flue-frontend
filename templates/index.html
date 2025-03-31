@@ -18,7 +18,7 @@
         <form id="promptForm" hx-post="/" hx-target="#result" hx-swap="innerHTML">
           <div class="mb-3">
             <label for="prompt" class="form-label">Prompt</label>
-            <textarea type="text" class="form-control" id="prompt" name="prompt" rows="3" autofocus required>A futuristic cybercat</textarea>
+            <textarea type="text" class="form-control" id="prompt" name="prompt" rows="3" spellcheck="false" autofocus required>A futuristic cybercat</textarea>
           </div>
           <div class="row g-3 mb-3">
             <div class="col">
@@ -32,7 +32,7 @@
           </div>
           <div class="mb-3">
             <label for="num_steps" class="form-label">Number of Steps</label>
-            <input type="number" class="form-control" id="num_steps" name="num_steps" value="3" min="1" max="5" step="1" required>
+            <input type="number" class="form-control" id="num_steps" name="num_steps" value="4" min="1" max="50" step="1" required>
           </div>
           <div class="mb-3">
             <label for="guidance_scale" class="form-label">Guidance Scale</label>

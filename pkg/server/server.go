@@ -113,7 +113,7 @@ func (s *Server) generate(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusBadRequest, fmt.Sprintf("Height is invalid: %v", err))
 	}
-	numSteps, err := parseFormInt(numStepsStr, 1, 10)
+	numSteps, err := parseFormInt(numStepsStr, 1, 50)
 	if err != nil {
 		return c.String(http.StatusBadRequest, fmt.Sprintf("Number of steps is invalid: %v", err))
 	}
