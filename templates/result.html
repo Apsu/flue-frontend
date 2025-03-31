@@ -1,0 +1,9 @@
+<div id="result">
+    <figure class="figure">
+        <img id="generatedImage" src="data:image/png;base64,{{ .image }}" alt="Generated Image" class="img-fluid"
+            data-bs-toggle="modal" data-bs-target="#imageModal"
+            onclick="document.getElementById('modalImage').src = this.src;">
+    </figure>
+    <p id="generationTime">Generation time: {{ .gen_time }} seconds</p>
+</div>
+
