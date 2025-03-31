@@ -101,22 +101,25 @@ func (s *Server) generate(c echo.Context) error {
 	guidanceScaleStr := c.FormValue("guidance_scale")
 	seedStr := c.FormValue("seed")
 
-	// Convert string fields to proper types.
-	width, err := strconv.Atoi(widthStr)
-	if err != nil {
-		return c.String(http.StatusBadRequest, "Invalid width")
+	// Validate required fields.
+	if prompt == "" {
+		return c.String(http.StatusBadRequest, "Prompt is required")
 	}
-	height, err := strconv.Atoi(heightStr)
+	width, err := parseFormInt(widthStr, 64, 1024)
 	if err != nil {
-		return c.String(http.StatusBadRequest, "Invalid height")
+		return c.String(http.StatusBadRequest, fmt.Sprintf("Width is invalid: %v", err))
 	}
-	numSteps, err := strconv.Atoi(numStepsStr)
+	height, err := parseFormInt(heightStr, 64, 1024)
 	if err != nil {
-		return c.String(http.StatusBadRequest, "Invalid number of steps")
+		return c.String(http.StatusBadRequest, fmt.Sprintf("Height is invalid: %v", err))
 	}
-	guidanceScale, err := strconv.ParseFloat(guidanceScaleStr, 64)
+	numSteps, err := parseFormInt(numStepsStr, 1, 10)
 	if err != nil {
-		return c.String(http.StatusBadRequest, "Invalid guidance scale")
+		return c.String(http.StatusBadRequest, fmt.Sprintf("Number of steps is invalid: %v", err))
+	}
+	guidanceScale, err := parseFormFloat(guidanceScaleStr, 0.0, 10.0)
+	if err != nil {
+		return c.String(http.StatusBadRequest, fmt.Sprintf("Guidance scale is invalid: %v", err))
 	}
 
 	// Prepare the JSON payload.
@@ -127,11 +130,12 @@ func (s *Server) generate(c echo.Context) error {
 		"steps":    numSteps,
 		"guidance": guidanceScale,
 	}
+
 	// Handle optional seed parameter.
 	if seedStr != "" {
-		seed, err := strconv.Atoi(seedStr)
+		seed, err := parseFormInt(seedStr, math.MinInt, math.MaxInt)
 		if err != nil {
-			return c.String(http.StatusBadRequest, "Invalid seed")
+			c.String(http.StatusBadRequest, fmt.Sprintf("Seed is invalid: %v", err))
 		}
 		payload["seed"] = seed
 	}
@@ -180,4 +184,30 @@ func (s *Server) generate(c echo.Context) error {
 func roundFloat(val float64, precision int) float64 {
 	ratio := math.Pow(10, float64(precision))
 	return math.Round(val*ratio) / ratio
+}
+
+func parseFormInt(field string, min, max int) (int, error) {
+	// Helper function to parse form values as integers with min/max constraints
+	valStr := field
+	val, err := strconv.Atoi(valStr)
+	if err != nil {
+		return 0, fmt.Errorf("invalid integer: %s", valStr)
+	}
+	if val < min || val > max {
+		return 0, fmt.Errorf("value out of range: %d (expected between %d and %d)", val, min, max)
+	}
+	return val, nil
+}
+
+func parseFormFloat(field string, min, max float64) (float64, error) {
+	// Helper function to parse form values as floats with min/max constraints
+	valStr := field
+	val, err := strconv.ParseFloat(valStr, 64)
+	if err != nil {
+		return 0, fmt.Errorf("invalid float: %s", valStr)
+	}
+	if val < min || val > max {
+		return 0, fmt.Errorf("value out of range: %f (expected between %f and %f)", val, min, max)
+	}
+	return val, nil
 }
