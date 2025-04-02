@@ -169,9 +169,8 @@ func (s *Server) generate(c echo.Context) error {
 
 	// Compute generation time as fallback if response doesn't provide it
 	genTime := time.Since(start).Seconds()
-	respGenTime, ok := result["gen_time"].(float64)
-	if ok {
-			genTime = respGenTime
+	if respGenTime, ok := result["gen_time"].(float64); ok {
+		genTime = respGenTime
 	}
 
 	// Prepare data for rendering the result template.
