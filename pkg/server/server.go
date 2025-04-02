@@ -105,15 +105,15 @@ func (s *Server) generate(c echo.Context) error {
 	if prompt == "" {
 		return c.String(http.StatusBadRequest, "Prompt is required")
 	}
-	width, err := parseFormInt(widthStr, 64, 1024)
+	width, err := parseFormInt(widthStr, 64, 2048)
 	if err != nil {
 		return c.String(http.StatusBadRequest, fmt.Sprintf("Width is invalid: %v", err))
 	}
-	height, err := parseFormInt(heightStr, 64, 1024)
+	height, err := parseFormInt(heightStr, 64, 2048)
 	if err != nil {
 		return c.String(http.StatusBadRequest, fmt.Sprintf("Height is invalid: %v", err))
 	}
-	numSteps, err := parseFormInt(numStepsStr, 1, 50)
+	numSteps, err := parseFormInt(numStepsStr, 1, 100)
 	if err != nil {
 		return c.String(http.StatusBadRequest, fmt.Sprintf("Number of steps is invalid: %v", err))
 	}
@@ -167,8 +167,12 @@ func (s *Server) generate(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "Failed to parse JSON response")
 	}
 
-	// Compute generation time.
+	// Compute generation time as fallback if response doesn't provide it
 	genTime := time.Since(start).Seconds()
+	respGenTime, ok := result["gen_time"].(float64)
+	if ok {
+			genTime = respGenTime
+	}
 
 	// Prepare data for rendering the result template.
 	data := map[string]any{
